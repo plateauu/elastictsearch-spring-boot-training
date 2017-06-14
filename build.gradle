@@ -1,0 +1,37 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.4.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile('org.springframework.boot:spring-boot-starter-data-elasticsearch')
+    compile('org.codehaus.groovy:groovy-all:2.4.9')
+    compile('org.apache.commons:commons-lang3:3.5')
+    compile('cglib:cglib-nodep:3.2.2')
+    compile('com.sun.jna:jna:3.0.9')
+
+    testCompile('pl.allegro.tech:embedded-elasticsearch:2.1.0')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('org.spockframework:spock-spring:1.1-groovy-2.4')
+    testCompile('org.spockframework:spock-core:1.1-groovy-2.4')
+
+}
