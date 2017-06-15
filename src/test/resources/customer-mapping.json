@@ -1,0 +1,44 @@
+{
+  "mappings": {
+    "customer": {
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "account_number": {
+          "type": "integer"
+        },
+        "balance": {
+          "type": "integer"
+        },
+        "firstname": {
+          "type": "text"
+        },
+        "lastname": {
+          "type": "text"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "gender": {
+          "type": "integer"
+        },
+        "address": {
+          "type": "text"
+        },
+        "employer": {
+          "type": "text"
+        },
+        "email": {
+          "type": "text"
+        },
+        "state": {
+          "type": "text"
+        },
+        "city": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}

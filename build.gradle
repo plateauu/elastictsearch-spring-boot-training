@@ -28,6 +28,8 @@ dependencies {
     compile('org.apache.commons:commons-lang3:3.5')
     compile('cglib:cglib-nodep:3.2.2')
     compile('com.sun.jna:jna:3.0.9')
+    compile('org.elasticsearch.client:rest:5.4.1')
+    compile('org.elasticsearch.client:transport:5.4.1')
 
     testCompile('pl.allegro.tech:embedded-elasticsearch:2.1.0')
     testCompile('org.springframework.boot:spring-boot-starter-test')
