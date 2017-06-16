@@ -1,0 +1,40 @@
+{
+  "customer": {
+    "properties": {
+      "account_number": {
+        "type": "long"
+      },
+      "balance": {
+        "type": "long"
+      },
+      "firstname": {
+        "type": "text"
+      },
+      "lastname": {
+        "type": "text"
+      },
+      "age": {
+        "type": "long"
+      },
+      "gender": {
+        "type": "long"
+      },
+      "address": {
+        "type": "text"
+      },
+      "employer": {
+        "type": "text"
+      },
+      "email": {
+        "type": "text"
+      },
+      "state": {
+        "type": "text"
+      },
+      "city": {
+        "type": "text"
+      }
+    }
+  }
+}
+

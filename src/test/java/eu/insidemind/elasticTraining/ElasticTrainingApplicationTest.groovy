@@ -2,51 +2,51 @@ package eu.insidemind.elasticTraining
 
 import groovy.transform.Immutable
 import org.elasticsearch.client.Client
+import org.elasticsearch.common.settings.Settings
+import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.transport.client.PreBuiltTransportClient
 import org.skyscreamer.jsonassert.JSONAssert
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic
 import pl.allegro.tech.embeddedelasticsearch.IndexSettings
-import spock.lang.Shared
+import pl.allegro.tech.embeddedelasticsearch.PopularProperties
 import spock.lang.Specification
+
+import java.util.concurrent.TimeUnit
 
 import static java.lang.ClassLoader.getSystemResourceAsStream
 
-@SpringBootTest
 class ElasticTrainingApplicationTest extends Specification {
 
-    @Autowired
-    EmbeddedElastic elastic
+    static CUSTOMERS_INDEX_NAME = "customers"
+    static CUSTOMER_INDEX_TYPE = "cust"
+    static CLUSTER_NAME_VALUE = 'plate_testing_cluster'
+    static TRANSPORT_TCP_PORT_VALUE = 9850
 
-    @Autowired
-    Client client
+    static CUSTOMER_INDEX = createIndex(CUSTOMERS_INDEX_NAME, getSystemResourceAsStream("customer-mapping.json"))
 
-    @Shared
-    EmbeddedElastic server
+    static EmbeddedElastic elastic = createElastic()
 
-    static CUSTOMERS_INDEX_NAME = 'customers'
-    static CUSTOMER_INDEX_TYPE = 'customer'
-    static CUSTOMER_INDEX = IndexSettings.builder()
-            .withType(CUSTOMERS_INDEX_NAME, getSystemResourceAsStream("customer-mapping.json"))
-            .build()
-
+    static Client client = createClient()
 
     def setup() {
-        server = elastic.start()
-        server.createIndex(CUSTOMERS_INDEX_NAME)
-        server.recreateIndices()
+        elastic.recreateIndices()
+    }
+
+    def cleanupSpec() {
+        elastic.stop()
+        client.close()
     }
 
     def "should index document"() {
         when:
-        server.index(CUSTOMERS_INDEX_NAME, CUSTOMER_INDEX_TYPE, toJson(ZENEK_CUSTOMER))
+        elastic.index(CUSTOMERS_INDEX_NAME, CUSTOMER_INDEX_TYPE, toJson(ZENEK_CUSTOMER))
 
         then:
         final result = client
                 .prepareSearch(CUSTOMERS_INDEX_NAME)
                 .setTypes(CUSTOMER_INDEX_TYPE)
-                .setQuery(QueryBuilders.termQuery("city", ZENEK_CUSTOMER.city))
+                .setQuery(QueryBuilders.termQuery('city', ZENEK_CUSTOMER.city))
                 .execute().actionGet()
 
         result.hits.totalHits() == 1
@@ -58,7 +58,7 @@ class ElasticTrainingApplicationTest extends Specification {
         {
             "account_number": "$customer.accountNumber",
             "balance": "$customer.balance",
-            "firstName":"$customer.firstName",
+            "firstname":"$customer.firstName",
             "lastname":"$customer.lastName",
             "age":"$customer.age",
             "address":"$customer.address",
@@ -69,6 +69,18 @@ class ElasticTrainingApplicationTest extends Specification {
         }
         """
     }
+
+    static final ZENEK_CUSTOMER = new Customer(
+            accountNumber: 11111,
+            balance: 3333,
+            firstName: 'zenek',
+            lastName: 'pospieszalski',
+            age: 32,
+            address: 'Warsaw, Mokotów',
+            employer: 'Pyrami',
+            email: 'email@dot.con',
+            state: 'mazowieckie',
+            city: 'Warsaw')
 
     @Immutable
     static class Customer {
@@ -84,19 +96,33 @@ class ElasticTrainingApplicationTest extends Specification {
         String city
     }
 
-    static final ZENEK_CUSTOMER = new Customer(
-            accountNumber: 11111,
-            balance: 3333,
-            firstName: 'zenek',
-            lastName: 'pospieszalski',
-            age: 32,
-            address: 'Warsaw, Mokotów',
-            employer: 'Pyrami',
-            email: 'email@dot.con',
-            state: 'mazowieckie',
-            city: 'Warsaw')
-
     void assertJsonEquals(String expected, String actual) {
         JSONAssert.assertEquals(expected, actual, false)
+    }
+
+    static EmbeddedElastic createElastic() throws IOException {
+        return EmbeddedElastic.builder()
+                .withElasticVersion("5.0.0")
+                .withSetting(PopularProperties.TRANSPORT_TCP_PORT, TRANSPORT_TCP_PORT_VALUE)
+                .withSetting(PopularProperties.CLUSTER_NAME, CLUSTER_NAME_VALUE)
+                .withEsJavaOpts("-Xms128m -Xmx512m")
+//                .withPlugin("analysis-stempel")
+                .withIndex(CUSTOMERS_INDEX_NAME, CUSTOMER_INDEX)
+                .withStartTimeout(1, TimeUnit.MINUTES)
+                .build()
+                .start()
+    }
+
+    static Client createClient() throws UnknownHostException {
+        Settings settings = Settings.builder().put("cluster.name", CLUSTER_NAME_VALUE).build()
+        return new PreBuiltTransportClient(settings)
+                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), TRANSPORT_TCP_PORT_VALUE))
+    }
+
+    static IndexSettings createIndex(String indexName, InputStream mapping) {
+        IndexSettings.builder()
+                .withType(indexName, mapping)
+                .withSettings(getSystemResourceAsStream("elastic-settings.json"))
+                .build()
     }
 }
