@@ -20,7 +20,6 @@ class ElasticTrainingApplicationTest extends Specification {
 
     static CLUSTER_NAME_VALUE = 'plateCluster'
     static TRANSPORT_TCP_PORT_VALUE = 9850
-//    static ELASTIC_VERSION = "2.4.5"
     static ELASTIC_VERSION = "5.0.0"
 
     static CUSTOMERS_INDEX_NAME = "customers"
@@ -52,7 +51,7 @@ class ElasticTrainingApplicationTest extends Specification {
                 .prepareSearch(CUSTOMERS_INDEX_NAME)
                 .setTypes(CUSTOMER_INDEX_TYPE)
                 .setQuery(QueryBuilders.termQuery("city", ZENEK_CUSTOMER.city))
-                .execute().actionGet()
+                .execute().get()
 
         result.hits.totalHits() == 1
         assertJsonEquals(toJson(ZENEK_CUSTOMER), result.hits.hits[0].sourceAsString)
