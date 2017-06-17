@@ -18,12 +18,17 @@ import static java.lang.ClassLoader.getSystemResourceAsStream
 
 class ElasticTrainingApplicationTest extends Specification {
 
-    static CUSTOMERS_INDEX_NAME = "customers"
-    static CUSTOMER_INDEX_TYPE = "cust"
-    static CLUSTER_NAME_VALUE = 'plate_testing_cluster'
+    static CLUSTER_NAME_VALUE = 'plateCluster'
     static TRANSPORT_TCP_PORT_VALUE = 9850
+//    static ELASTIC_VERSION = "2.4.5"
+    static ELASTIC_VERSION = "5.0.0"
 
-    static CUSTOMER_INDEX = createIndex(CUSTOMERS_INDEX_NAME, getSystemResourceAsStream("customer-mapping.json"))
+    static CUSTOMERS_INDEX_NAME = "customers"
+    static CUSTOMER_INDEX_TYPE = "customer"
+    static CUSTOMER_INDEX = IndexSettings.builder()
+            .withType(CUSTOMER_INDEX_TYPE, getSystemResourceAsStream("customer-mapping.json"))
+            .withSettings(getSystemResourceAsStream("elastic-settings.json"))
+            .build()
 
     static EmbeddedElastic elastic = createElastic()
 
@@ -34,8 +39,8 @@ class ElasticTrainingApplicationTest extends Specification {
     }
 
     def cleanupSpec() {
-        elastic.stop()
         client.close()
+        elastic.stop()
     }
 
     def "should index document"() {
@@ -46,7 +51,7 @@ class ElasticTrainingApplicationTest extends Specification {
         final result = client
                 .prepareSearch(CUSTOMERS_INDEX_NAME)
                 .setTypes(CUSTOMER_INDEX_TYPE)
-                .setQuery(QueryBuilders.termQuery('city', ZENEK_CUSTOMER.city))
+                .setQuery(QueryBuilders.termQuery("city", ZENEK_CUSTOMER.city))
                 .execute().actionGet()
 
         result.hits.totalHits() == 1
@@ -61,11 +66,12 @@ class ElasticTrainingApplicationTest extends Specification {
             "firstname":"$customer.firstName",
             "lastname":"$customer.lastName",
             "age":"$customer.age",
+            "gender":"$customer.gender",
             "address":"$customer.address",
             "employer":"$customer.employer",
             "email":"$customer.email",
             "state":"$customer.state",
-            "city":"$customer.city",
+            "city":"$customer.city"
         }
         """
     }
@@ -73,14 +79,15 @@ class ElasticTrainingApplicationTest extends Specification {
     static final ZENEK_CUSTOMER = new Customer(
             accountNumber: 11111,
             balance: 3333,
-            firstName: 'zenek',
-            lastName: 'pospieszalski',
+            firstName: "Zenek",
+            lastName: "pospieszalski",
+            gender: "M",
             age: 32,
-            address: 'Warsaw, Mokotów',
-            employer: 'Pyrami',
-            email: 'email@dot.con',
-            state: 'mazowieckie',
-            city: 'Warsaw')
+            address: "Mokotów",
+            employer: "Pyrami",
+            email: "email@dot.con",
+            state: "mazowieckie",
+            city: "Warsaw")
 
     @Immutable
     static class Customer {
@@ -89,6 +96,7 @@ class ElasticTrainingApplicationTest extends Specification {
         String firstName
         String lastName
         int age
+        String gender
         String address
         String employer
         String email
@@ -102,11 +110,10 @@ class ElasticTrainingApplicationTest extends Specification {
 
     static EmbeddedElastic createElastic() throws IOException {
         return EmbeddedElastic.builder()
-                .withElasticVersion("5.0.0")
+                .withElasticVersion(ELASTIC_VERSION)
                 .withSetting(PopularProperties.TRANSPORT_TCP_PORT, TRANSPORT_TCP_PORT_VALUE)
                 .withSetting(PopularProperties.CLUSTER_NAME, CLUSTER_NAME_VALUE)
                 .withEsJavaOpts("-Xms128m -Xmx512m")
-//                .withPlugin("analysis-stempel")
                 .withIndex(CUSTOMERS_INDEX_NAME, CUSTOMER_INDEX)
                 .withStartTimeout(1, TimeUnit.MINUTES)
                 .build()
@@ -116,13 +123,7 @@ class ElasticTrainingApplicationTest extends Specification {
     static Client createClient() throws UnknownHostException {
         Settings settings = Settings.builder().put("cluster.name", CLUSTER_NAME_VALUE).build()
         return new PreBuiltTransportClient(settings)
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), TRANSPORT_TCP_PORT_VALUE))
+                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), TRANSPORT_TCP_PORT_VALUE))
     }
 
-    static IndexSettings createIndex(String indexName, InputStream mapping) {
-        IndexSettings.builder()
-                .withType(indexName, mapping)
-                .withSettings(getSystemResourceAsStream("elastic-settings.json"))
-                .build()
-    }
 }
