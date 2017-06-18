@@ -20,13 +20,13 @@ class ElasticTrainingApplicationTest extends Specification {
 
     static CLUSTER_NAME_VALUE = 'plateCluster'
     static TRANSPORT_TCP_PORT_VALUE = 9850
-    static ELASTIC_VERSION = "5.0.0"
+    static ELASTIC_VERSION = '5.0.0'
 
-    static CUSTOMERS_INDEX_NAME = "customers"
-    static CUSTOMER_INDEX_TYPE = "customer"
+    static CUSTOMERS_INDEX_NAME = 'customers'
+    static CUSTOMER_INDEX_TYPE = 'customer'
     static CUSTOMER_INDEX = IndexSettings.builder()
-            .withType(CUSTOMER_INDEX_TYPE, getSystemResourceAsStream("customer-mapping.json"))
-            .withSettings(getSystemResourceAsStream("elastic-settings.json"))
+            .withType(CUSTOMER_INDEX_TYPE, getSystemResourceAsStream('customer-mapping.json'))
+            .withSettings(getSystemResourceAsStream('elastic-settings.json'))
             .build()
 
     static EmbeddedElastic elastic = createElastic()
@@ -42,7 +42,7 @@ class ElasticTrainingApplicationTest extends Specification {
         elastic.stop()
     }
 
-    def "should index document"() {
+    def 'should index document'() {
         when:
         elastic.index(CUSTOMERS_INDEX_NAME, CUSTOMER_INDEX_TYPE, toJson(ZENEK_CUSTOMER))
 
@@ -50,7 +50,7 @@ class ElasticTrainingApplicationTest extends Specification {
         final result = client
                 .prepareSearch(CUSTOMERS_INDEX_NAME)
                 .setTypes(CUSTOMER_INDEX_TYPE)
-                .setQuery(QueryBuilders.termQuery("city", ZENEK_CUSTOMER.city))
+                .setQuery(QueryBuilders.termQuery('city', ZENEK_CUSTOMER.city))
                 .execute().get()
 
         result.hits.totalHits() == 1
@@ -78,15 +78,15 @@ class ElasticTrainingApplicationTest extends Specification {
     static final ZENEK_CUSTOMER = new Customer(
             accountNumber: 11111,
             balance: 3333,
-            firstName: "Zenek",
-            lastName: "pospieszalski",
+            firstName: 'Zenek',
+            lastName: 'pospieszalski',
             gender: "M",
             age: 32,
-            address: "Mokotów",
-            employer: "Pyrami",
-            email: "email@dot.con",
-            state: "mazowieckie",
-            city: "Warsaw")
+            address: 'Mokotów',
+            employer: 'Pyrami',
+            email: 'email@dot.con',
+            state: 'mazowieckie',
+            city: 'Warsaw')
 
     @Immutable
     static class Customer {
@@ -112,7 +112,7 @@ class ElasticTrainingApplicationTest extends Specification {
                 .withElasticVersion(ELASTIC_VERSION)
                 .withSetting(PopularProperties.TRANSPORT_TCP_PORT, TRANSPORT_TCP_PORT_VALUE)
                 .withSetting(PopularProperties.CLUSTER_NAME, CLUSTER_NAME_VALUE)
-                .withEsJavaOpts("-Xms128m -Xmx512m")
+                .withEsJavaOpts('-Xms128m -Xmx512m')
                 .withIndex(CUSTOMERS_INDEX_NAME, CUSTOMER_INDEX)
                 .withStartTimeout(1, TimeUnit.MINUTES)
                 .build()
@@ -120,9 +120,9 @@ class ElasticTrainingApplicationTest extends Specification {
     }
 
     static Client createClient() throws UnknownHostException {
-        Settings settings = Settings.builder().put("cluster.name", CLUSTER_NAME_VALUE).build()
+        Settings settings = Settings.builder().put('cluster.name', CLUSTER_NAME_VALUE).build()
         return new PreBuiltTransportClient(settings)
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), TRANSPORT_TCP_PORT_VALUE))
+                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName('127.0.0.1'), TRANSPORT_TCP_PORT_VALUE))
     }
 
 }
