@@ -3,6 +3,8 @@ package eu.insidemind.elasticTraining
 import groovy.transform.Immutable
 import pl.allegro.tech.embeddedelasticsearch.IndexSettings
 
+import java.time.LocalDate
+
 class SampleIndices {
 
     protected static CUSTOMERS_INDEX_NAME = 'customers'
@@ -33,6 +35,36 @@ class SampleIndices {
             "city":"$customer.city"
         }
         """
+    }
+
+
+    protected static CARS_INDEX_NAME = 'cars'
+    protected static CAR_INDEX_TYPE = 'car'
+    protected static CAR_INDEX = IndexSettings.builder()
+            .withType(CAR_INDEX_TYPE, ClassLoader.getSystemResourceAsStream('car-mapping.json'))
+            .withSettings(ClassLoader.getSystemResourceAsStream('elastic-settings.json'))
+            .build()
+
+    protected static final ZENEK_CAR = new Car(
+            model: 'Cinquocento', brand: 'FIAT', owner: 'ZENEK')
+
+
+    static String toJson(Car car) {
+        """
+        {
+            "model": "$car.model",
+            "brand": "$car.brand",
+            "owner":"$car.owner"
+        }
+        """
+    }
+
+    @Immutable
+    static class Car {
+        String model
+        String brand
+//        String productionDate
+        String owner
     }
 
     @Immutable
