@@ -3,6 +3,7 @@ package eu.insidemind.elasticTraining
 import org.elasticsearch.client.Client
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
+import org.elasticsearch.index.IndexNotFoundException
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.transport.client.PreBuiltTransportClient
 import org.skyscreamer.jsonassert.JSONAssert
@@ -91,26 +92,60 @@ class EmbeddedElasticTraining extends Specification {
         client.prepareSearch(CUSTOMERS_INDEX_NAME).execute().actionGet().hits.totalHits == 1
     }
 
-    def 'should put document in the right index and type'() {
+    def 'should put document in proper index and type'() {
         when: 'creating indices'
         index(ZENEK_CUSTOMER)
         index(ZENEK_CAR)
 
-//        then: 'should find car type in cars index'
-//        with(client.prepareSearch(CARS_INDEX_NAME).setTypes(CAR_INDEX_TYPE).execute().actionGet()) {
-//            hits.totalHits == 1
-//            assertJsonEquals(toJson(ZENEK_CAR), hits.hits[0].sourceAsString)
-//        }
+        then: 'should find car type in cars index'
+        def result = client.prepareSearch(CARS_INDEX_NAME)
+                .setTypes(CAR_INDEX_TYPE)
+                .execute().actionGet()
 
-        then: 'should find customer type in customers index'
-        with(client.prepareSearch(CUSTOMERS_INDEX_NAME).setTypes(CUSTOMER_INDEX_TYPE).execute().actionGet()) {
-            hits.totalHits == 1
-            assertJsonEquals(toJson(ZENEK_CUSTOMER), hits.hits[0].sourceAsString)
-        }
+        result.hits.hits.size() == 1
+        assertJsonEquals(toJson(ZENEK_CAR), result.hits.hits[0].sourceAsString)
+
+        and: 'should find customer type in customers index'
+        def customerResult = client.prepareSearch(CUSTOMERS_INDEX_NAME)
+                .setTypes(CUSTOMER_INDEX_TYPE)
+                .execute().actionGet()
+
+        customerResult.hits.hits.size() == 1
+        assertJsonEquals(toJson(ZENEK_CUSTOMER), customerResult.hits.hits[0].sourceAsString)
+    }
+
+    def 'should delete proper index'() {
+        given:
+        index(ZENEK_CAR)
+        index(ZENEK_CUSTOMER)
+        assert client.prepareSearch(CARS_INDEX_NAME).setTypes(CAR_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1:'Invalid index size'
+        assert client.prepareSearch(CUSTOMERS_INDEX_NAME).setTypes(CUSTOMER_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1:'Invalid index size'
+
+        elastic.deleteIndex(CARS_INDEX_NAME)
+        when:
+        client.prepareSearch(CARS_INDEX_NAME).setTypes(CAR_INDEX_TYPE).execute().actionGet()
+
+        then:
+        thrown(IndexNotFoundException)
+
+        and:
+        client.prepareSearch(CUSTOMERS_INDEX_NAME).setTypes(CUSTOMER_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1
     }
 
 
+    def 'should delete all indices'() {
+        given:
+        index(ZENEK_CAR)
+        index(ZENEK_CUSTOMER)
+        assert client.prepareSearch(CARS_INDEX_NAME).setTypes(CAR_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1:'Invalid index size'
+        assert client.prepareSearch(CUSTOMERS_INDEX_NAME).setTypes(CUSTOMER_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1:'Invalid index size'
 
+        when:
+        elastic.deleteIndices()
+
+        then:
+        client.prepareSearch().execute().actionGet().hits.hits.size() == 0
+    }
 
 
     void index(Customer customer) {

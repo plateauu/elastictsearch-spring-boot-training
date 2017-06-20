@@ -3,8 +3,6 @@ package eu.insidemind.elasticTraining
 import groovy.transform.Immutable
 import pl.allegro.tech.embeddedelasticsearch.IndexSettings
 
-import java.time.LocalDate
-
 class SampleIndices {
 
     protected static CUSTOMERS_INDEX_NAME = 'customers'
@@ -14,7 +12,7 @@ class SampleIndices {
             .withSettings(ClassLoader.getSystemResourceAsStream('elastic-settings.json'))
             .build()
 
-    protected static final ZENEK_CUSTOMER = new Customer(
+    static final ZENEK_CUSTOMER = new Customer(
             accountNumber: 11111, balance: 3333, firstName: 'Zenek',
             lastName: 'pospieszalski', gender: "M", age: 32, address: 'Mokotów',
             employer: 'Pyrami', email: 'email@dot.con', state: 'mazowieckie', city: 'Warsaw')
