@@ -1,11 +1,11 @@
 package eu.insidemind.elasticTraining
 
 import org.elasticsearch.client.Client
+import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.index.IndexNotFoundException
 import org.elasticsearch.index.query.QueryBuilders
-import org.elasticsearch.transport.client.PreBuiltTransportClient
 import org.skyscreamer.jsonassert.JSONAssert
 import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic
 import pl.allegro.tech.embeddedelasticsearch.PopularProperties
@@ -19,7 +19,7 @@ class EmbeddedElasticTraining extends Specification {
 
     static CLUSTER_NAME_VALUE = 'plateCluster'
     static TRANSPORT_TCP_PORT_VALUE = 9850
-    static ELASTIC_VERSION = '5.0.0'
+    static ELASTIC_VERSION = '2.4.5'
 
     static EmbeddedElastic elastic = createElastic()
 
@@ -42,7 +42,7 @@ class EmbeddedElasticTraining extends Specification {
         final result = client
                 .prepareSearch(CUSTOMERS_INDEX_NAME)
                 .setTypes(CUSTOMER_INDEX_TYPE)
-                .setQuery(QueryBuilders.termQuery('city', ZENEK_CUSTOMER.city))
+                .setQuery(QueryBuilders.matchQuery('city', ZENEK_CUSTOMER.city))
                 .execute().get()
 
         result.hits.totalHits() == 1
@@ -175,8 +175,9 @@ class EmbeddedElasticTraining extends Specification {
 
     static Client createClient() throws UnknownHostException {
         Settings settings = Settings.builder().put('cluster.name', CLUSTER_NAME_VALUE).build()
-        return new PreBuiltTransportClient(settings)
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName('127.0.0.1'), TRANSPORT_TCP_PORT_VALUE))
+        def client  = TransportClient.builder().settings(settings).build()
+        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName('127.0.0.1'), TRANSPORT_TCP_PORT_VALUE))
+        return client
     }
 
 }

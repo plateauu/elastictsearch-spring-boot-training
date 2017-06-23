@@ -1,9 +1,9 @@
 {
   "car": {
     "properties": {
-      "model": {"type": "keyword"},
-      "brand": {"type": "keyword"},
-      "owner": {"type": "keyword"}
+      "model": {"type": "string"},
+      "brand": {"type": "string"},
+      "owner": {"type": "string"}
     }
   }
 }

@@ -3,15 +3,15 @@
     "properties": {
       "account_number": {"type": "integer"},
       "balance": {"type": "integer"},
-      "firstname": {"type": "keyword"},
-      "lastname": {"type": "keyword"},
+      "firstname": {"type": "string"},
+      "lastname": {"type": "string"},
       "age": {"type": "integer"},
-      "gender": {"type": "keyword"},
-      "address": {"type": "text"},
-      "employer": {"type": "text"},
-      "email": {"type": "keyword"},
-      "state": {"type": "keyword"},
-      "city": {"type": "keyword"}
+      "gender": {"type": "string"},
+      "address": {"type": "string"},
+      "employer": {"type": "string"},
+      "email": {"type": "string"},
+      "state": {"type": "string"},
+      "city": {"type": "string"}
     }
   }
 }
