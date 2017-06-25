@@ -11,9 +11,8 @@ import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic
 import pl.allegro.tech.embeddedelasticsearch.PopularProperties
 import spock.lang.Specification
 
-import java.util.concurrent.TimeUnit
-
 import static eu.insidemind.elasticTraining.SampleIndices.*
+import static java.util.concurrent.TimeUnit.MINUTES
 
 class EmbeddedElasticTraining extends Specification {
 
@@ -118,8 +117,8 @@ class EmbeddedElasticTraining extends Specification {
         given:
         index(ZENEK_CAR)
         index(ZENEK_CUSTOMER)
-        assert client.prepareSearch(CARS_INDEX_NAME).setTypes(CAR_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1:'Invalid index size'
-        assert client.prepareSearch(CUSTOMERS_INDEX_NAME).setTypes(CUSTOMER_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1:'Invalid index size'
+        assert client.prepareSearch(CARS_INDEX_NAME).setTypes(CAR_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1: 'Invalid index size'
+        assert client.prepareSearch(CUSTOMERS_INDEX_NAME).setTypes(CUSTOMER_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1: 'Invalid index size'
 
         elastic.deleteIndex(CARS_INDEX_NAME)
         when:
@@ -137,8 +136,8 @@ class EmbeddedElasticTraining extends Specification {
         given:
         index(ZENEK_CAR)
         index(ZENEK_CUSTOMER)
-        assert client.prepareSearch(CARS_INDEX_NAME).setTypes(CAR_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1:'Invalid index size'
-        assert client.prepareSearch(CUSTOMERS_INDEX_NAME).setTypes(CUSTOMER_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1:'Invalid index size'
+        assert client.prepareSearch(CARS_INDEX_NAME).setTypes(CAR_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1: 'Invalid index size'
+        assert client.prepareSearch(CUSTOMERS_INDEX_NAME).setTypes(CUSTOMER_INDEX_TYPE).execute().actionGet().hits.hits.size() == 1: 'Invalid index size'
 
         when:
         elastic.deleteIndices()
@@ -168,14 +167,14 @@ class EmbeddedElasticTraining extends Specification {
                 .withEsJavaOpts('-Xms128m -Xmx512m')
                 .withIndex(CUSTOMERS_INDEX_NAME, CUSTOMER_INDEX)
                 .withIndex(CARS_INDEX_NAME, CAR_INDEX)
-                .withStartTimeout(1, TimeUnit.MINUTES)
+                .withStartTimeout(1, MINUTES)
                 .build()
                 .start()
     }
 
     static Client createClient() throws UnknownHostException {
         Settings settings = Settings.builder().put('cluster.name', CLUSTER_NAME_VALUE).build()
-        def client  = TransportClient.builder().settings(settings).build()
+        def client = TransportClient.builder().settings(settings).build()
         client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName('127.0.0.1'), TRANSPORT_TCP_PORT_VALUE))
         return client
     }
