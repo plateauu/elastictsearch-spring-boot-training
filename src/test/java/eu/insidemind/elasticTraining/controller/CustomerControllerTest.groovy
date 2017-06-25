@@ -80,6 +80,11 @@ class CustomerControllerTest extends Specification {
         mockMvc.perform(get("/user/mick")).andExpect(status().isOk())
     }
 
+    def 'should return specific customer by param request'(){
+        expect:
+        mockMvc.perform(get("/user?busiId=1")).andExpect(status().isOk())
+    }
+
 
     static getCustomerResponseJson() {
         """

@@ -39,4 +39,10 @@ public class CustomerController {
         log.info("REST API: fetching customer with name: {}", firstName);
         return repository.findByFirstName(firstName).orElse(null);
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/user")
+    public Customer getCustomerByParam(@RequestParam("busiId") long businessId) {
+        log.info("REST API: fetching customer by id: {}", businessId);
+        return repository.findOne(businessId);
+    }
 }
