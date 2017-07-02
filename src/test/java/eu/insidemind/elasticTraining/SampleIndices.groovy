@@ -50,7 +50,7 @@ class SampleIndices {
     static String toJson(Car car) {
         """
         {
-            "model": "$car.model",
+            "domain": "$car.model",
             "brand": "$car.brand",
             "owner":"$car.owner"
         }

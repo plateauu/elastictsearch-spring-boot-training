@@ -1,7 +1,7 @@
-package eu.insidemind.elasticTraining.controller;
+package eu.insidemind.elasticTraining.customer;
 
-import eu.insidemind.elasticTraining.model.Customer;
-import eu.insidemind.elasticTraining.repository.CustomerRepository;
+import eu.insidemind.elasticTraining.customer.domain.Customer;
+import eu.insidemind.elasticTraining.customer.repository.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class CustomerController {
+class CustomerController {
 
     private final Logger log = LoggerFactory.getLogger(CustomerController.class);
 
-    CustomerRepository repository;
+    private final CustomerRepository repository;
 
     @Autowired
     public CustomerController(CustomerRepository repository) {

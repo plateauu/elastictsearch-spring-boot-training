@@ -1,14 +1,14 @@
 package eu.insidemind.elasticTraining.controller
 
-import eu.insidemind.elasticTraining.model.Customer
-import eu.insidemind.elasticTraining.repository.CustomerRepository
+import eu.insidemind.elasticTraining.customer.CustomerController
+import eu.insidemind.elasticTraining.customer.domain.Customer
+import eu.insidemind.elasticTraining.customer.repository.CustomerRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import spock.lang.Specification

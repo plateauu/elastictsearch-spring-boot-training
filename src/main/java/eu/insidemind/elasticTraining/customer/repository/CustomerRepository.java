@@ -1,6 +1,6 @@
-package eu.insidemind.elasticTraining.repository;
+package eu.insidemind.elasticTraining.customer.repository;
 
-import eu.insidemind.elasticTraining.model.Customer;
+import eu.insidemind.elasticTraining.customer.domain.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

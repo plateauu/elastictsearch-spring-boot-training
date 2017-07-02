@@ -9,8 +9,8 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "eu.insidemind.elasticTraining.repository")
-public class ElasticConfig {
+@EnableElasticsearchRepositories(basePackages = "eu.insidemind.elasticTraining.customer.repository")
+class ElasticConfig {
 
     @Bean
     public ElasticsearchOperations elasticsearchTemplate(){
