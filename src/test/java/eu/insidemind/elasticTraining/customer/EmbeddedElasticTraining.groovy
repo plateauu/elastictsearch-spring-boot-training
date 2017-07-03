@@ -1,9 +1,9 @@
-package eu.insidemind.elasticTraining
+package eu.insidemind.elasticTraining.customer
 
 import org.elasticsearch.index.IndexNotFoundException
 import org.elasticsearch.index.query.QueryBuilders
 
-import static eu.insidemind.elasticTraining.SampleIndices.*
+import static SampleIndices.*
 
 class EmbeddedElasticTraining extends EmeddedElasticTest {
 

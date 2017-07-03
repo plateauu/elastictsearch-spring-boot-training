@@ -1,6 +1,5 @@
-package eu.insidemind.elasticTraining.controller
+package eu.insidemind.elasticTraining.customer
 
-import eu.insidemind.elasticTraining.customer.CustomerController
 import eu.insidemind.elasticTraining.customer.domain.Customer
 import eu.insidemind.elasticTraining.customer.repository.CustomerRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,7 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import spock.lang.Specification
@@ -42,7 +43,8 @@ class CustomerControllerTest extends Specification {
         def customerRepository = Mock(CustomerRepository) {
             findAll() >> customer
         }
-        def controller = new CustomerController(customerRepository)
+        def elasticService = Mock(ElasticService)
+        def controller = new CustomerJpaController(customerRepository, elasticService)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
         expect:
@@ -63,7 +65,8 @@ class CustomerControllerTest extends Specification {
 
     def 'should save customer into database just once'() {
         def customerRepository = Mock(CustomerRepository)
-        def controller = new CustomerController(customerRepository)
+        def elasticService = Mock(ElasticService)
+        def controller = new CustomerJpaController(customerRepository, elasticService)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
         when:
         mockMvc.perform(post("/save")
@@ -75,14 +78,47 @@ class CustomerControllerTest extends Specification {
         1 * customerRepository.save(_ as Customer)
     }
 
-    def 'should return specific customer'(){
+    def 'should return specific customer'() {
         expect:
         mockMvc.perform(get("/user/mick")).andExpect(status().isOk())
     }
 
-    def 'should return specific customer by param request'(){
+    def 'should return specific customer by param request'() {
         expect:
         mockMvc.perform(get("/user?busiId=1")).andExpect(status().isOk())
+    }
+
+    def 'should delete specific customer by param request'() {
+        expect:
+        mockMvc.perform(get("/delete")
+                .param("busiId", "1"))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string('success'))
+    }
+
+    def 'should call repository delete after delete account request'() {
+        def customerRepository = Mock(CustomerRepository)
+        def elasticService = Mock(ElasticService)
+        def controller = new CustomerJpaController(customerRepository, elasticService)
+
+        when:
+        controller.deleteUser(-1L)
+
+        then:
+        1 * customerRepository.delete(-1L)
+    }
+
+    def 'should call elasticService.deleteDocument  after delete request'() {
+        def customerRepository = Mock(CustomerRepository)
+        def elasticService = Mock(ElasticService)
+        def controller = new CustomerJpaController(customerRepository, elasticService)
+
+        when:
+        controller.deleteUser(-1L)
+
+        then:
+        1 * elasticService.deleteDocument(-1L)
     }
 
 

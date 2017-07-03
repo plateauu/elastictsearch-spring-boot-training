@@ -1,12 +1,9 @@
-package eu.insidemind.elasticTraining
+package eu.insidemind.elasticTraining.customer
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import groovy.json.JsonBuilder
-import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.common.xcontent.XContentFactory
-import org.elasticsearch.index.query.QueryBuilders
 
-import static eu.insidemind.elasticTraining.SampleIndices.*
+import static SampleIndices.*
 
 class ElastincClientTest extends EmeddedElasticTest {
 
@@ -37,7 +34,7 @@ class ElastincClientTest extends EmeddedElasticTest {
     def 'should get the same data from elastic'() {
         def json = toJson(new Car(model: 'mondeo', brand: 'ford', owner: 'jaaa'))
 
-        def indexResponse = client.prepareIndex(CARS_INDEX_NAME, CAR_INDEX_TYPE, '1')
+        client.prepareIndex(CARS_INDEX_NAME, CAR_INDEX_TYPE, '1')
                 .setSource(json).get()
 
         when:

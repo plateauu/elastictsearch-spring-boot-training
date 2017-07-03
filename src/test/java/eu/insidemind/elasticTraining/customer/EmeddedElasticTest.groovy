@@ -1,4 +1,4 @@
-package eu.insidemind.elasticTraining
+package eu.insidemind.elasticTraining.customer
 
 import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
@@ -9,7 +9,7 @@ import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic
 import pl.allegro.tech.embeddedelasticsearch.PopularProperties
 import spock.lang.Specification
 
-import static eu.insidemind.elasticTraining.SampleIndices.*
+import static SampleIndices.*
 import static java.util.concurrent.TimeUnit.MINUTES
 
 class EmeddedElasticTest extends Specification {

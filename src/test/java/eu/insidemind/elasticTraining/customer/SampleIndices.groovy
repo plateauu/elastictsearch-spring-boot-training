@@ -1,4 +1,4 @@
-package eu.insidemind.elasticTraining
+package eu.insidemind.elasticTraining.customer
 
 import groovy.transform.Immutable
 import pl.allegro.tech.embeddedelasticsearch.IndexSettings
@@ -61,7 +61,6 @@ class SampleIndices {
     static class Car {
         String model
         String brand
-//        String productionDate
         String owner
     }
 
