@@ -14,7 +14,7 @@ import static java.util.concurrent.TimeUnit.MINUTES
 
 class EmeddedElasticTest extends Specification {
 
-    static CLUSTER_NAME_VALUE = 'plateCluster'
+    static CLUSTER_NAME_VALUE = 'testClusterByPlateauu'
     static TRANSPORT_TCP_PORT_VALUE = 9850
     static ELASTIC_SERVER_PORT = 9250
     static ELASTIC_VERSION = '2.4.5'

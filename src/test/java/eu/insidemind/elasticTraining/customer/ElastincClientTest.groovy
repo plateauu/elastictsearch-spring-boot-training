@@ -14,8 +14,6 @@ class ElastincClientTest extends EmeddedElasticTest {
     }
 
     def cleanupSpec() {
-        client.close()
-        elastic.stop()
     }
 
     def 'should index data by client'() {
@@ -54,7 +52,7 @@ class ElastincClientTest extends EmeddedElasticTest {
         client.prepareIndex(CARS_INDEX_NAME, CAR_INDEX_TYPE, '1')
                 .setSource(XContentFactory.jsonBuilder()
                         .startObject()
-                            .field('domain', car.model)
+                            .field('model', car.model)
                             .field('brand', car.brand)
                             .field('owner', car.owner)
                         .endObject()

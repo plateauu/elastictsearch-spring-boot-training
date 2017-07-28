@@ -43,9 +43,7 @@ class SampleIndices {
             .withSettings(ClassLoader.getSystemResourceAsStream('elastic-settings.json'))
             .build()
 
-    protected static final ZENEK_CAR = new Car(
-            model: 'Cinquocento', brand: 'FIAT', owner: 'ZENEK')
-
+    protected static final ZENEK_CAR = new Car(model: 'Cinquocento', brand: 'FIAT', owner: 'ZENEK')
 
     static String toJson(Car car) {
         """

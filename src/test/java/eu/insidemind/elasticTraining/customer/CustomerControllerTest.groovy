@@ -7,7 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -34,7 +33,9 @@ class CustomerControllerTest extends Specification {
 
     def 'should return 200 status'() {
         expect:
-        mockMvc.perform(get("/home")).andExpect(status().isOk())
+        mockMvc.perform(get("/all"))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
     }
 
     def 'should return customer list'() {
@@ -43,13 +44,13 @@ class CustomerControllerTest extends Specification {
         def customerRepository = Mock(CustomerRepository) {
             findAll() >> customer
         }
-        def elasticService = Mock(ElasticService)
+        def elasticService = new ElasticConfiguration().elasticService()
         def controller = new CustomerJpaController(customerRepository, elasticService)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
         expect:
-        mockMvc.perform(get("/home")).andDo(MockMvcResultHandlers.print())
-        mockMvc.perform(get("/home")).andExpect(content().json(getCustomerResponseJson()))
+        mockMvc.perform(get("/all")).andDo(MockMvcResultHandlers.print())
+        mockMvc.perform(get("/all")).andExpect(content().json(getCustomerResponseJson()))
     }
 
     def 'should save customer'() {
@@ -64,10 +65,12 @@ class CustomerControllerTest extends Specification {
     }
 
     def 'should save customer into database just once'() {
+        def customer = new Customer()
         def customerRepository = Mock(CustomerRepository)
-        def elasticService = Mock(ElasticService)
+        def elasticService = new ElasticConfiguration().elasticService()
         def controller = new CustomerJpaController(customerRepository, elasticService)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+
         when:
         mockMvc.perform(post("/save")
                 .content(getCustomerRequestJson())
@@ -75,7 +78,7 @@ class CustomerControllerTest extends Specification {
                 .andDo(MockMvcResultHandlers.print())
 
         then:
-        1 * customerRepository.save(_ as Customer)
+        1 * customerRepository.save(_ as Customer) >> customer
     }
 
     def 'should return specific customer'() {
@@ -99,7 +102,7 @@ class CustomerControllerTest extends Specification {
 
     def 'should call repository delete after delete account request'() {
         def customerRepository = Mock(CustomerRepository)
-        def elasticService = Mock(ElasticService)
+        def elasticService = new ElasticConfiguration().elasticService()
         def controller = new CustomerJpaController(customerRepository, elasticService)
 
         when:
@@ -111,14 +114,14 @@ class CustomerControllerTest extends Specification {
 
     def 'should call elasticService.deleteDocument  after delete request'() {
         def customerRepository = Mock(CustomerRepository)
-        def elasticService = Mock(ElasticService)
+        def elasticService = new ElasticConfiguration().elasticService()
         def controller = new CustomerJpaController(customerRepository, elasticService)
 
         when:
         controller.deleteUser(-1L)
 
         then:
-        1 * elasticService.deleteDocument(-1L)
+        !elasticService.searchQuery(-1L).isPresent()
     }
 
 

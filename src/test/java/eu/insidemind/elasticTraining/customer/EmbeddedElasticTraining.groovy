@@ -11,11 +11,6 @@ class EmbeddedElasticTraining extends EmeddedElasticTest {
         elastic.recreateIndices()
     }
 
-    def cleanupSpec() {
-        client.close()
-        elastic.stop()
-    }
-
     def 'should index document'() {
         when:
         index(ZENEK_CUSTOMER)

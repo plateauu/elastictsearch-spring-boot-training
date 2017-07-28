@@ -7,7 +7,6 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -16,16 +15,15 @@ import java.util.Optional;
 @Service
 class ElasticService {
 
-    private final Logger log = LoggerFactory.getLogger(ElasticService.class);
-
     private static final String CUSTOMER_INDEX_NAME = "customers";
     private static final String CUSTOMER_INDEX_TYPE = "customer";
 
-    private final ElasticsearchOperations elasticsearchTemplate;
+    private final Logger log = LoggerFactory.getLogger(ElasticService.class);
 
+    private final ElasticsearchOperations elasticsearchTemplate;
     private final JsonManager jsonManager;
 
-    ElasticService(ElasticsearchTemplate elasticsearchTemplate, JsonManager jsonManager) {
+    ElasticService(ElasticsearchOperations elasticsearchTemplate, JsonManager jsonManager) {
         this.elasticsearchTemplate = elasticsearchTemplate;
         this.jsonManager = jsonManager;
         createIndex(CUSTOMER_INDEX_NAME, ClassLoader.getSystemResourceAsStream("elastic-settings.json"));
@@ -52,7 +50,7 @@ class ElasticService {
     }
 
     void deleteDocument(Long businessId) {
-        foundToDelete(businessId).ifPresent(id -> {
+        searchQuery(businessId).ifPresent(id -> {
                     getClient()
                             .prepareDelete(CUSTOMER_INDEX_NAME, CUSTOMER_INDEX_TYPE, id)
                             .get().isFound();
@@ -60,7 +58,7 @@ class ElasticService {
         );
     }
 
-    private Optional<String> foundToDelete(Long businessId) {
+    private Optional<String> searchQuery(Long businessId) {
         return Arrays.stream(getClient().prepareSearch(CUSTOMER_INDEX_NAME)
                 .setQuery(QueryBuilders.termQuery("businessId", businessId))
                 .execute()

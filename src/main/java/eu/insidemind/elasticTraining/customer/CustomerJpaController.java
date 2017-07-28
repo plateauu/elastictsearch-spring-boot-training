@@ -34,14 +34,14 @@ class CustomerJpaController {
     public String save(@RequestBody Customer customer) {
         log.info("REST API: saving customer: {}", customer);
         Customer saved = repository.save(customer);
-        if(elasticService.indexDocument(saved)){
+        if (elasticService.indexDocument(saved)) {
             return "success";
         }
         return "fail";
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/user/{firstName}")
-    public Customer getCustomer(@PathVariable  String firstName) {
+    public Customer getCustomer(@PathVariable String firstName) {
         log.info("REST API: fetching customer with name: {}", firstName);
         return repository.findByFirstName(firstName).orElse(null);
     }
