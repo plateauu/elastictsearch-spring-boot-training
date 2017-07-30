@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Service
 class ElasticService {
@@ -29,24 +30,18 @@ class ElasticService {
         createIndex(CUSTOMER_INDEX_NAME, ClassLoader.getSystemResourceAsStream("elastic-settings.json"));
     }
 
-    private Client getClient() {
-        return elasticsearchTemplate.getClient();
-    }
-
-    private void createIndex(String name, Object settings) {
-        if (elasticsearchTemplate.indexExists(CUSTOMER_INDEX_NAME)) {
-            elasticsearchTemplate.deleteIndex(CUSTOMER_INDEX_NAME);
-        }
-        log.info("Creating new index: [{}]", name);
-        elasticsearchTemplate.createIndex(name, settings);
-    }
-
     boolean indexDocument(Customer customer) {
-        log.info("Creating new document for customer {}", customer);
-        return getClient().prepareIndex(CUSTOMER_INDEX_NAME, CUSTOMER_INDEX_TYPE)
-                .setSource(jsonManager.serialize(customer))
-                .get()
-                .isCreated();
+        try {
+            String serializedCustomer = jsonManager.serialize(customer);
+            log.info("Creating new document for customer {} : {}", customer, serializedCustomer);
+            return getClient().prepareIndex(CUSTOMER_INDEX_NAME, CUSTOMER_INDEX_TYPE)
+                    .setSource(serializedCustomer)
+                    .execute()
+                    .get()
+                    .isCreated();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void deleteDocument(Long businessId) {
@@ -56,6 +51,18 @@ class ElasticService {
                             .get().isFound();
                 }
         );
+    }
+
+    private Client getClient() {
+        return elasticsearchTemplate.getClient();
+    }
+
+    private void createIndex(String name, Object settings) {
+        if (elasticsearchTemplate.indexExists(name)) {
+            elasticsearchTemplate.deleteIndex(name);
+        }
+        log.info("Creating new index: [{}]", name);
+        elasticsearchTemplate.createIndex(name, settings);
     }
 
     private Optional<String> searchQuery(Long businessId) {

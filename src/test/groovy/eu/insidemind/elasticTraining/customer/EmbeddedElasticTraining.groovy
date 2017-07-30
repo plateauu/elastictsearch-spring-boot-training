@@ -5,7 +5,7 @@ import org.elasticsearch.index.query.QueryBuilders
 
 import static SampleIndices.*
 
-class EmbeddedElasticTraining extends EmeddedElasticTest {
+class EmbeddedElasticTraining extends EmbeddedElasticTest {
 
     def setup() {
         elastic.recreateIndices()

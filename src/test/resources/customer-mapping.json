@@ -1,0 +1,10 @@
+{
+  "customer": {
+    "properties": {
+      "businessId": {"type": "long"},
+      "firstname": {"type": "string"},
+      "lastname": {"type": "string"},
+      "balance": {"type": "integer"}
+    }
+  }
+}

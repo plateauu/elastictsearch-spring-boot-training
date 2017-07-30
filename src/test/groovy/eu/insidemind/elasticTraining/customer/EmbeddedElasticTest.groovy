@@ -12,7 +12,7 @@ import spock.lang.Specification
 import static SampleIndices.*
 import static java.util.concurrent.TimeUnit.MINUTES
 
-class EmeddedElasticTest extends Specification {
+class EmbeddedElasticTest extends SpringTestConfig {
 
     static CLUSTER_NAME_VALUE = 'testClusterByPlateauu'
     static TRANSPORT_TCP_PORT_VALUE = 9850

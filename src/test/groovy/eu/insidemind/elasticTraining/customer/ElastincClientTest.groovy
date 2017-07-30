@@ -5,7 +5,7 @@ import org.elasticsearch.common.xcontent.XContentFactory
 
 import static SampleIndices.*
 
-class ElastincClientTest extends EmeddedElasticTest {
+class ElastincClientTest extends EmbeddedElasticTest {
 
     private def objectMapper = new ObjectMapper()
 

@@ -26,7 +26,8 @@ class JsonManager {
 
     String serialize(Customer customer) {
         try {
-            return objectMapper.writeValueAsString(customer);
+            String s = objectMapper.writeValueAsString(customer);
+            return s;
         } catch (JsonProcessingException e) {
             throw new RuntimeException("json parsing exception", e);
         }
