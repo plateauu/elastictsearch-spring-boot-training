@@ -45,12 +45,14 @@ class ElasticService {
     }
 
     void deleteDocument(Long businessId) {
-        searchQuery(businessId).ifPresent(id -> {
-                    getClient()
-                            .prepareDelete(CUSTOMER_INDEX_NAME, CUSTOMER_INDEX_TYPE, id)
-                            .get().isFound();
-                }
-        );
+        searchQuery(businessId).ifPresent(this::toDelete);
+    }
+
+    private boolean toDelete(String id) {
+        log.info("Deleting customer document for id {}", id);
+        return getClient()
+                .prepareDelete(CUSTOMER_INDEX_NAME, CUSTOMER_INDEX_TYPE, id)
+                .get().isFound();
     }
 
     private Client getClient() {
@@ -75,6 +77,4 @@ class ElasticService {
                 .findFirst()
                 .map(SearchHit::getId);
     }
-
-
 }

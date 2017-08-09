@@ -20,7 +20,6 @@ class CustomerControllerTest extends SpringTestConfig {
     @Autowired
     WebApplicationContext webctx
 
-    @Autowired
     MockMvc mockMvc
 
     def setup() {
